@@ -13,8 +13,8 @@ namespace SQLiteDotNet
         {
             SQLiteConnection sqlite_conn;
             sqlite_conn = CreateConnection();
-            //CreateTable(sqlite_conn);
-            //InsertData(sqlite_conn);
+            CreateTable(sqlite_conn);
+            InsertData(sqlite_conn);
             ReadData(sqlite_conn);
         }
 
@@ -38,31 +38,42 @@ namespace SQLiteDotNet
 
         static void CreateTable(SQLiteConnection conn)
         {
-
             SQLiteCommand sqlite_cmd;
-            string Createsql = "CREATE TABLE SampleTable(Col1 VARCHAR(20), Col2 INT)";
-            string Createsql1 = "CREATE TABLE SampleTable1(Col1 VARCHAR(20), Col2 INT)";
             sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = Createsql;
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = Createsql1;
+
+            string sqlString = "CREATE TABLE IF NOT EXISTS Customers(customer_id VARCHAR(20), name VARCHAR(20), surname VARCHAR(20), age INT)";
+            sqlite_cmd.CommandText = sqlString;
             sqlite_cmd.ExecuteNonQuery();
 
+            sqlString = "CREATE TABLE IF NOT EXISTS Transactions(transaction_id VARCHAR(20), customer_id VARCHAR(20), product_id VARCHAR(20), date TEXT, amount REAL)";
+            sqlite_cmd.CommandText = sqlString;
+            sqlite_cmd.ExecuteNonQuery();
+
+            sqlString = "CREATE TABLE IF NOT EXISTS Products(product_id VARCHAR(20), name VARCHAR(20), description VARCHAR(20))";
+            sqlite_cmd.CommandText = sqlString;
+            sqlite_cmd.ExecuteNonQuery();
+
+            Console.WriteLine("Tables created");
         }
 
         static void InsertData(SQLiteConnection conn)
         {
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test Text ', 1); ";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test1 Text1 ', 2); ";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test2 Text2 ', 3); ";
+
+            string sqlString = "INSERT INTO Customers(customer_id, name, surname, age) VALUES('cust1', 'Jenifer', 'Lopez', 38); ";
+            sqlite_cmd.CommandText = sqlString;
             sqlite_cmd.ExecuteNonQuery();
 
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable1(Col1, Col2) VALUES('Test3 Text3 ', 3); ";
+            sqlString = "INSERT INTO Customers(customer_id, name, surname, age) VALUES('cust2', 'Anna', 'Anders', 25); ";
+            sqlite_cmd.CommandText = sqlString;
             sqlite_cmd.ExecuteNonQuery();
+
+            sqlString = "INSERT INTO Customers(customer_id, name, surname, age) VALUES('cust3', 'John', 'Nash', 57); ";
+            sqlite_cmd.CommandText = sqlString;
+            sqlite_cmd.ExecuteNonQuery();
+
+            Console.WriteLine("Data inserted");
         }
 
         static void ReadData(SQLiteConnection conn)
@@ -70,12 +81,16 @@ namespace SQLiteDotNet
             SQLiteDataReader sqlite_datareader;
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT * FROM SampleTable";
+
+            string sqlString = "SELECT * FROM Customers";
+
+            sqlite_cmd.CommandText = sqlString;
 
             sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {
-                string myreader = sqlite_datareader.GetString(0);
+                string myreader = $"{sqlite_datareader.GetString(0)} {sqlite_datareader.GetString(1)} " +
+                                    $"{sqlite_datareader.GetString(2)}";
                 Console.WriteLine(myreader);
             }
             conn.Close();
